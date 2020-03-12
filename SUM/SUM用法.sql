@@ -28,7 +28,6 @@ FROM
 		WHEN '0' 
 		THEN CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111) END
 )s1
-
 WHERE 
 	NOT EXISTS(
 		SELECT s1.非假日 
@@ -42,7 +41,7 @@ WHERE
 				LEFT JOIN [innovator].[BUSINESS_CALENDAR_EXCEPTION] AS 行事曆單身 ON CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111) = CONVERT(varchar, SWITCHOFFSET(行事曆單身.DAY_DATE, '+08:00'), 111)
 			)AS x1
 		WHERE s1.非假日 =x1.休假日
-	)
+		)
 	and s1.報工者= '0271 楊承檍'
 
 	group by s1.報工者
