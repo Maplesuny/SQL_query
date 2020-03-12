@@ -2,15 +2,15 @@ SELECT s1.非假日
 FROM
 	(SELECT CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111) AS 報工日期,
           角色.NAME AS 報工者,
-          CASE
-             (SELECT DATEDIFF(DAY, '17530101', CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)) % 7 / 5)
-             WHEN '0' THEN CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)
-          END 非假日,
+	          CASE 
+	             (SELECT DATEDIFF(DAY, '17530101', CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)) % 7 / 5)
+	             WHEN '0' THEN CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)
+	          END AS 非假日,
           
-          CASE
-              (SELECT DATEDIFF(DAY, '17530101', CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)) % 7 / 5)
-          WHEN '0' THEN 工時紀錄表.SA_WORK_HOURS
-          END AS 工時
+	          CASE
+	              (SELECT DATEDIFF(DAY, '17530101', CONVERT(varchar, SWITCHOFFSET(工時紀錄表.IN_START_TIME, '+08:00'), 111)) % 7 / 5)
+	          WHEN '0' THEN 工時紀錄表.SA_WORK_HOURS
+	          END AS 工時
 	 FROM [innovator].[IN_TIMERECORD] AS 工時紀錄表
 	 LEFT JOIN [innovator].[IDENTITY] AS 角色 ON 工時紀錄表.OWNED_BY_ID =角色.ID
    	) AS s1
