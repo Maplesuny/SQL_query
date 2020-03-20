@@ -1,4 +1,3 @@
--- PART 2  update 2020/03/20
 DECLARE @startDate DATETIME,
         @endDate DATETIME,
         @報工者 varchar(20)
@@ -19,9 +18,19 @@ SELECT @startDate = '2019/11/01',
 		            END AS 上班日,
 					角色.NAME AS 報工者,
 					工時紀錄表.SA_WORK_HOURS AS 工時,
-					工時紀錄表.id AS ID
+					工時紀錄表.id AS ID,
+					使用者.IN_DAY_HOUR as 日上限工時,
+					使用者.in_month_hour as 月上限工時,
+					專案.NAME AS 專案名稱,
+					部門.NAME AS 部門名稱
 	        	FROM [innovator].[IN_TIMERECORD] AS 工時紀錄表
-	       		LEFT JOIN [innovator].[IDENTITY] AS 角色 ON 工時紀錄表.OWNED_BY_ID =角色.ID) 判斷上班日
+	       		LEFT JOIN [innovator].[IDENTITY] AS 角色 ON 工時紀錄表.OWNED_BY_ID =角色.ID
+				LEFT JOIN [innovator].[IDENTITY] AS 部門 ON 角色.IN_DEPT = 部門.ID 
+				LEFT JOIN [innovator].[USER] AS 使用者 ON 角色.NAME =使用者.KEYED_NAME
+				LEFT JOIN [innovator].[PROJECT] AS 專案 ON 工時紀錄表.IN_PROJECT = 專案.ID
+
+			) 判斷上班日
+
 		WHERE 判斷上班日.上班日 IS NOT NULL
 		),
     A2 AS (-- 休假日
@@ -84,10 +93,15 @@ SELECT	t1.上班日 ,
      	c.上班天數 ,
      	b.實際總工時 ,
      	t1.工時 ,
-     	b1.實際總工時 as '包含假日實際總工時'
+     	b1.實際總工時 as '包含假日實際總工時',
+		A.日上限工時,
+		c.上班天數 * A.日上限工時  AS '應報工工時上限(上班日)',
+		T1.專案名稱,
+		T1.部門名稱
 FROM A3 AS t1
-LEFT JOIN C AS t2 ON t1.報工者=t2.報工者,c,b,B1
+LEFT JOIN C AS t2 ON t1.報工者=t2.報工者,c,b,B1,A
 WHERE t1.上班日 BETWEEN @startDate AND @endDate
+	AND A.ID = T1.ID
 	AND t1.報工者 = c.報工者
 	AND b.報工者 = t1.報工者
 	AND b1.報工者 = t1.報工者 
